@@ -1,0 +1,112 @@
+import pandas as pd
+import geopandas as gpd
+import folium
+from branca.element import Template, MacroElement
+from folium import plugins
+import base64
+from folium.features import CustomIcon
+from IPython.display import Image, display
+
+# Load the data
+data_2016 = pd.read_excel('Analisis_Suelo_2016.xlsx', sheet_name=1, engine='openpyxl')
+data_2018 = pd.read_excel('Analisis_Suelo_2018.xlsx', sheet_name=1, engine='openpyxl')
+data_2022 = pd.read_excel('Analisis_Suelo_2022.xlsx', sheet_name=1, engine='openpyxl')
+
+# Create GeoDataFrames
+gdf_2016 = gpd.GeoDataFrame(data_2016, geometry=gpd.points_from_xy(data_2016.longitud, data_2016.latitud))
+gdf_2018 = gpd.GeoDataFrame(data_2018, geometry=gpd.points_from_xy(data_2018.longitud, data_2018.latitud))
+gdf_2022 = gpd.GeoDataFrame(data_2022, geometry=gpd.points_from_xy(data_2022.longitud, data_2022.latitud))
+
+# Create a map centered around Almirante Brown
+amba_map = folium.Map(location=[-34.8242, -58.3796], zoom_start=12)
+
+# Add the sample points to the map with different colors for each year
+for idx, row in gdf_2016.iterrows():
+    folium.Marker(location=[row['latitud'], row['longitud']], popup=row['punto muestra'], icon=folium.Icon(color='lightblue')).add_to(amba_map)
+
+for idx, row in gdf_2018.iterrows():
+    folium.Marker(location=[row['latitud'], row['longitud']], popup=row['punto muestra'], icon=folium.Icon(color='lightgreen')).add_to(amba_map)
+
+for idx, row in gdf_2022.iterrows():
+    folium.Marker(location=[row['latitud'], row['longitud']], popup=row['punto muestra'], icon=folium.Icon(color='darkgreen')).add_to(amba_map)
+
+# Create a legend
+legend_template = """
+{% macro html(this, kwargs) %}
+<div style=\"
+    position: fixed; 
+    bottom: 50px;
+    left: 50px;
+    width: 120px;
+    height: 90px; 
+    z-index:9999;
+    font-size:14px;
+    \">
+    <p><a style=\"color:#ADD8E6;font-size:200%;margin-left:20px;\">•</a>&emsp;2016</p>
+    <p><a style=\"color:#90EE90;font-size:200%;margin-left:20px;\">•</a>&emsp;2018</p>
+    <p><a style=\"color:#006400;font-size:200%;margin-left:20px;\">•</a>&emsp;2022</p>
+</div>
+{% endmacro %}
+"""
+legend = MacroElement()
+legend._template = Template(legend_template)
+amba_map.get_root().add_child(legend)
+
+# Create a title
+title_template = """
+{% macro html(this, kwargs) %}
+<div style=\"
+    position: fixed; 
+    top: 10px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    z-index:9999;
+    font-size:24px;
+    font-weight: bold;
+    background-color: #ffffff;
+    opacity: 0.52;
+    padding: 6px;
+    border-radius: 6px;
+    text-align: center;
+    \">
+    Puntos Muestrales
+</div>
+{% endmacro %}
+"""
+title = MacroElement()
+title._template = Template(title_template)
+amba_map.get_root().add_child(title)
+
+
+# Read the image file
+with open('plot.png', 'rb') as f:
+    img_data = f.read()
+
+# Encode the image data to base64
+encoded_img = base64.b64encode(img_data).decode('utf-8')
+
+# Create a data URL for the image
+data_url = f"data:image/png;base64,{encoded_img}"
+
+# Add the sample points to the map with different colors and the image icon
+for idx, row in gdf_2016.iterrows():
+    # Create a custom HTML popup with the image and additional content
+    html = f"""
+    <div style="text-align: center;">
+        <div style="background-color: green; color: white; padding: 6px;">
+            <span style="font-size: 24px;">GOOD</span>
+            <span style="font-size: 24px; margin-left: 10px;">&#x1F600;</span>
+        </div>
+        <img src="{data_url}" width="480" height="290">
+    </div>
+    """
+    popup = folium.Popup(html, max_width=400)
+
+    icon = CustomIcon(icon_image=data_url, icon_size=(10, 8))
+    folium.Marker(
+        location=[row['latitud'], row['longitud']],
+        popup=popup,
+        icon=icon
+    ).add_to(amba_map)
+
+amba_map
