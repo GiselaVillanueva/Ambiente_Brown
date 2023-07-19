@@ -1,0 +1,16 @@
+# Import requests to download the GeoJSON file
+import requests
+
+# URL of the GeoJSON file
+url = 'https://raw.githubusercontent.com/Rodri1791/Regions_Argentina/main/Regiones_ArgentinasGJSON/provinciasargentina.geojson'
+
+# Send a GET request to the URL
+response = requests.get(url)
+
+# Load the GeoJSON data
+provincias_data = response.json()
+
+
+
+# Display the map
+amba_map
