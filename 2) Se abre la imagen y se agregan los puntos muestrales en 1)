@@ -1,0 +1,22 @@
+# Read the image file
+with open('plot.png', 'rb') as f:
+    img_data = f.read()
+
+# Encode the image data to base64
+encoded_img = base64.b64encode(img_data).decode('utf-8')
+
+# Create a data URL for the image
+data_url = f"data:image/png;base64,{encoded_img}"
+
+# Add the sample points to the map with different colors and the image icon
+for idx, row in gdf_2016.iterrows():
+    # Create a custom HTML popup with the clickable image
+    html = f"<img src='{data_url}' width='480' height='290'>"
+    popup = folium.Popup(html, max_width=300)
+
+    icon = CustomIcon(icon_image=data_url, icon_size=(10, 8))
+    folium.Marker(
+        location=[row['latitud'], row['longitud']],
+        popup=popup,
+        icon=icon
+    ).add_to(amba_map)
