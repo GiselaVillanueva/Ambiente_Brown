@@ -1,0 +1,70 @@
+# GeoJSON data for the arroyos
+arroyos_data = {
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-58.40555555555556, -34.63888888888889],
+          [-58.32222222222223, -34.63888888888889]
+        ]
+      },
+      "properties": {
+        "name": "Riachuelo"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-58.32222222222223, -34.63888888888889],
+          [-58.32222222222223, -34.54444444444444]
+        ]
+      },
+      "properties": {
+        "name": "Arroyo Maldonado"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-58.32222222222223, -34.54444444444444],
+          [-58.23888888888889, -34.54444444444444]
+        ]
+      },
+      "properties": {
+        "name": "Arroyo Cildañez"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-58.30833333333333, -34.60555555555556]
+      },
+      "properties": {
+        "name": "Arroyo del Rey"
+      }
+    }
+  ]
+}
+
+# Add the GeoJSON data to the map
+folium.GeoJson(
+    arroyos_data,
+    name='Arroyos',
+    style_function=lambda feature: {
+        'fillColor': '#0000ff',
+        'color': '#0000ff',
+        'weight': 2,
+        'dashArray': '5, 5'
+    }
+).add_to(amba_map)
+
+# Display the map
+amba_map
